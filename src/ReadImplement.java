@@ -1,4 +1,4 @@
 
 public interface ReadImplement {
-	void read();
+	boolean read();
 }
