@@ -3,7 +3,7 @@ package filter;
 public class InsertProcessor implements Processor{
 
 	private StringInput tobeDecided;
-	private Result result;
+	public Result result;
 	
 	public static final int UNDECIDED = 0;
 	public static final int READ = 1;
@@ -20,7 +20,7 @@ public class InsertProcessor implements Processor{
 		return tobeDecided.getSplittedString()[pointer];
 	}
 	@Override
-	public void gotoDecide() {
+	public void gotoProcess() {
 		// TODO Auto-generated method stub
 		int pointer = 2 ;//INSERT INTO "TABLE" VALUE ()
 		result.setTablename(currentString(pointer));
@@ -67,7 +67,7 @@ public class InsertProcessor implements Processor{
 
 	public void printResult()
 	{
-		this.gotoDecide();
+		this.gotoProcess();
 		System.out.println("target: "+result.value[1]);
 	}
 }

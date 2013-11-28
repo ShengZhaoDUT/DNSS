@@ -2,7 +2,7 @@ package filter;
 
 public class ReadProcessor implements Processor{
 	private StringInput tobeDecided;
-	private Result result;
+	public Result result;
 	
 	public static final int UNDECIDED = 0;
 	public static final int READ = 1;
@@ -16,7 +16,7 @@ public class ReadProcessor implements Processor{
 
 	}
 	
-	public void gotoDecide()
+	public void gotoProcess()
 	{
 		int pointer = 1; //Start from the 2nd word
 		if (tobeDecided.getSplittedString()[pointer].equals("*"))
@@ -45,7 +45,7 @@ public class ReadProcessor implements Processor{
 	}
 		public void printResult()
 		{
-			this.gotoDecide();
+			this.gotoProcess();
 			System.out.println("Restricter: "+result.restrict.restricter);
 		}
 
