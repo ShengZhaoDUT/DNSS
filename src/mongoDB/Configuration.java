@@ -1,3 +1,4 @@
+package mongoDB;
 
 public abstract class Configuration {
 	public abstract String getDBMasterHost();

@@ -1,3 +1,4 @@
+package mongoDB;
 
 public class MongoDBConfiguration extends Configuration{
 	private String mongoDBMasterHost = "192.168.1.55";

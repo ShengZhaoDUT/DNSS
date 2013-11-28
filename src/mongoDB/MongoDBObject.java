@@ -1,3 +1,4 @@
+package mongoDB;
 import java.net.UnknownHostException;
 
 import com.mongodb.DB;
