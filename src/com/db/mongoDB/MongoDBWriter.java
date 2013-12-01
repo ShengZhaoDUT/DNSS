@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.db.common.WriteImplement;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
@@ -16,15 +17,18 @@ public class MongoDBWriter implements WriteImplement{
 	private Mongo mongo;
 	List<Map<?, ?>> arrayList;
 	private DBCollection dbCollection;
+	private DB db;
 	
-	public MongoDBWriter(MongoDBObject mObject, List<Map<?, ?>> mylist) {
+	public MongoDBWriter(MongoDBObject mObject) {
 		mongo = mObject.getMongo();
-		dbCollection = mObject.getDbCollection();
-		this.arrayList = mylist;
+		
 	}
-	@Override
-	public boolean write() {
-		// TODO Auto-generated method stub
+	
+	@SuppressWarnings("unchecked")
+	public boolean write(String dbColl, String dbName, Object mylist) {
+		db = mongo.getDB(dbName);
+		dbCollection = db.getCollection(dbColl);
+		this.arrayList = (List<Map<?, ?>>)mylist;
 		List<DBObject> list = new ArrayList<DBObject>();
 		for(Map<?, ?> element : arrayList) {
 			BasicDBObject basic = new BasicDBObject(element);
@@ -34,5 +38,4 @@ public class MongoDBWriter implements WriteImplement{
 		System.out.println(wr.getError());
 		return true;
 	}
-	
 }

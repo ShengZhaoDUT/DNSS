@@ -21,9 +21,9 @@ public class test {
 		List<Map<?, ?>> list = new ArrayList<Map<?,?>>();
 		list.add(map);
 		try {
-			MongoDBObject mDbObject = new MongoDBObject(configuration, "user", "test");
-			MongoDBWriter mongoDBWriter = new MongoDBWriter(mDbObject, list);
-			mongoDBWriter.write();
+			MongoDBObject mDbObject = new MongoDBObject(configuration);
+			MongoDBWriter mongoDBWriter = new MongoDBWriter(mDbObject);
+			mongoDBWriter.write("user", "test", list);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
