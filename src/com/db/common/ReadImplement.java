@@ -1,5 +1,5 @@
 package com.db.common;
 
 public interface ReadImplement {
-	boolean read();
+	boolean read(String tableName, String dbName, Object o);
 }

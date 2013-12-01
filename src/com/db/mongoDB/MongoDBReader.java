@@ -10,11 +10,12 @@ public class MongoDBReader implements ReadImplement{
 	public MongoDBReader(MongoDBObject MObject) {
 		mongo = MObject.getMongo();
 	}
-	
+
 	@Override
-	public boolean read() {
+	public boolean read(String tableName, String dbName, Object o) {
 		// TODO Auto-generated method stub
 		
 		return false;
 	}
+
 }
