@@ -1,4 +1,5 @@
-package mongoDB;
+package com.db.mongoDB;
+import com.db.common.ReadImplement;
 import com.mongodb.Mongo;
 
 

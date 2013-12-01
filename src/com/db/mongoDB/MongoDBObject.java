@@ -1,6 +1,7 @@
-package mongoDB;
+package com.db.mongoDB;
 import java.net.UnknownHostException;
 
+import com.db.common.Configuration;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;

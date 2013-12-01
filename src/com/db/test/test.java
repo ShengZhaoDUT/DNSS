@@ -1,9 +1,14 @@
-package mongoDB;
+package com.db.test;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.db.common.Configuration;
+import com.db.mongoDB.MongoDBConfiguration;
+import com.db.mongoDB.MongoDBObject;
+import com.db.mongoDB.MongoDBWriter;
 
 
 public class test {

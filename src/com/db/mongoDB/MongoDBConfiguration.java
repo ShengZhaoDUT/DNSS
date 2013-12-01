@@ -1,4 +1,6 @@
-package mongoDB;
+package com.db.mongoDB;
+
+import com.db.common.Configuration;
 
 public class MongoDBConfiguration extends Configuration{
 	private String mongoDBMasterHost = "192.168.1.55";
@@ -13,5 +15,14 @@ public class MongoDBConfiguration extends Configuration{
 	}
 	public String getDBName() {
 		return dbName;
+	}
+	public void setDBMasterHost(String mongoDBMasterHost) {
+		this.mongoDBMasterHost = mongoDBMasterHost;
+	}
+	public void setDBMasterPort(int mongoDBMasterPort) {
+		this.mongoDBMasterPort = mongoDBMasterPort;
+	}
+	public void setdbName(String dbName) {
+		this.dbName = dbName;
 	}
 }

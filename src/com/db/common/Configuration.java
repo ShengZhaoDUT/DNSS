@@ -1,4 +1,4 @@
-package mongoDB;
+package com.db.common;
 
 public abstract class Configuration {
 	public abstract String getDBMasterHost();
