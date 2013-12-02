@@ -10,12 +10,15 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.WriteConcern;
+import com.mongodb.WriteResult;
 
 public class MongoDBUpdater implements UpdateImplement{
 	
 	private Mongo mongo;
 	private DB db;
 	private DBCollection dbCollection;
+	private static WriteConcern writeConcern = WriteConcern.FSYNC_SAFE;
 	
 	public MongoDBUpdater(MongoDBObject o) {
 		mongo = o.getMongo();
@@ -41,11 +44,11 @@ public class MongoDBUpdater implements UpdateImplement{
             u.put("$set", fieldsToSet);
             WriteResult res = collection.update(q, u, false, false,
                     writeConcern);
-            return res.getN() == 1 ? 0 : 1;
+            return res.getN() == 1 ? true : false;
         }
         catch (Exception e) {
             System.err.println(e.toString());
-            return 1;
+            return false;
         }
         finally {
             if (db != null) {

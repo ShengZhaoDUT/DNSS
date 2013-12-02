@@ -31,7 +31,13 @@ public class MongoDBWriter implements WriteImplement{
 		db = mongo.getDB(dbName);
 		dbCollection = db.getCollection(dbColl);
 		List<DBObject> list = new ArrayList<DBObject>();
-		for(Map<?, ?> element : (List<Map<?,?>>)mylist) {
+		//Map<String, String> map = new HashMap<String, String>();
+		//map.put("_id", key);
+		List<Map<?, ?>> result = (List<Map<?,?>>)mylist;
+		//result.add(map);
+		//BasicDBObject basic = new BasicDBObject("_id", key);
+		//list.add(basic);
+		for(Map<?, ?> element : result) {
 			BasicDBObject basic = new BasicDBObject(element);
 			list.add(basic);
 		}
