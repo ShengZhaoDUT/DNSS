@@ -27,7 +27,7 @@ public class MongoDBWriter implements WriteImplement{
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean write(String dbColl, String dbName, Object mylist) {
+	public boolean write(String dbName, String dbColl, Object mylist) {
 		db = mongo.getDB(dbName);
 		dbCollection = db.getCollection(dbColl);
 		List<DBObject> list = new ArrayList<DBObject>();
