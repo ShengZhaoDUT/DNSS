@@ -11,9 +11,6 @@ public class MongoDBObject {
 	
 	private Mongo mongo = null;
 	
-	
-	
-	
 	public MongoDBObject(Configuration configuration) throws UnknownHostException {
 		// TODO Auto-generated constructor stub
 		String host = configuration.getDBMasterHost();
@@ -27,6 +24,10 @@ public class MongoDBObject {
 
 	public Mongo getMongo() {
 		return mongo;
+	}
+	
+	public void close() {
+		mongo.close();
 	}
 	/*
 	public DBCollection getDbCollection() {

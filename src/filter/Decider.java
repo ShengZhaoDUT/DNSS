@@ -17,6 +17,5 @@ public class Decider {
 	public Decider(InsertProcessor ip)
 	{
 		result = ip.result;
-	}
-	
+	}	
 }

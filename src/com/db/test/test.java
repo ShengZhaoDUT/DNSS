@@ -40,7 +40,7 @@ public class test {
 				Set<String> set = new HashSet<String>();
 				Map<String, String> result = new HashMap<String, String>();
 				set.add("Name");
-				set.add("age");
+				//set.add("age");
 				mongoDBReader.read("test", "user", "ShengZhao", set, result);
 				if(result.size() == 0) {
 					System.out.println("no return");
@@ -80,13 +80,6 @@ public class test {
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
-		
-		
-			
-			
-		
-		
-		
+		}	
 	}	
 }
