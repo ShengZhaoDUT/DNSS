@@ -3,8 +3,10 @@ package com.db.hbase;
 public class Column {
 	public String columnFamily;
 	public String column;
-	public Column(String cf, String c)
+	public String rowname;
+	public Column(String r, String cf, String c)
 	{
+		rowname = r;
 		columnFamily = cf;
 		column = c;
 	}

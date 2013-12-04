@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/home/zs/dependence/mongo-2.10.1.jar"/>
 	<classpathentry kind="lib" path="/home/xiaohan/hbase-0.94.11/hbase-0.94.11.jar"/>
 	<classpathentry kind="lib" path="/home/xiaohan/hbase-0.94.11/hbase-0.94.11-tests.jar"/>
 	<classpathentry kind="lib" path="/home/xiaohan/hbase-0.94.11/lib/commons-configuration-1.6.jar"/>

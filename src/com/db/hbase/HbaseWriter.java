@@ -1,6 +1,8 @@
 package com.db.hbase;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
@@ -9,7 +11,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import com.db.common.WriteImplement;
 
-public class HbaseWriter{
+public class HbaseWriter implements WriteImplement{
 
 	private Configuration conf;
 	
@@ -18,16 +20,35 @@ public class HbaseWriter{
 		conf = (Configuration) h.getConf();
 	}
 	
-	public boolean write(String tableName, String dbColl, Object mylist) throws IOException {
+	public boolean write(String tableName,String dbColl, Object mylist) {
 		// TODO Auto-generated method stub
 		//here dbName represents Tablename
-		HTable mytable = new HTable(conf, tableName);
-		String rowname = "row";
-		Put p = new Put(Bytes.toBytes(rowname));
-		p.add(Bytes.toBytes("columnfamily"),Bytes.toBytes("column"),Bytes.toBytes("value"));
+		HTable mytable;
+		try {
+			mytable = new HTable(conf, tableName);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		Map<Column, String> result = (Map<Column, String>)mylist;
+		for(Column c:result.keySet())
+		{
+			
 		
-		mytable.put(p);
-		return false;
+			String rowname = c.rowname;
+			Put p = new Put(Bytes.toBytes(rowname));
+			p.add(Bytes.toBytes(c.columnFamily),Bytes.toBytes(c.column),Bytes.toBytes(result.get(c)));
+
+			try {
+				mytable.put(p);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

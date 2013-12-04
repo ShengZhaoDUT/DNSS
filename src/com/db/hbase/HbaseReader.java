@@ -1,25 +1,48 @@
 package com.db.hbase;
 
+import java.io.IOException;
 import java.util.Set;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
 
 import com.db.common.ReadImplement;
 
-public class HbaseReader implements ReadImplement {
+public class HbaseReader{
 
-	private HBaseAdmin admin;
-	
+	private Configuration conf;
+	private Result result;
 	public HbaseReader(HbaseObject h){
-		admin = h.getAdmin();
+		conf = h.getConf();
 	}
 	
-	@Override
 	public boolean read(String dbName, String table, String key,
-			Set<String> fields, Object result) {
+			Set<Column> fields, Object result) {
 		// TODO How to read it?
-		
-		return false;
+		HTable mytable = null;
+		try {
+			mytable = new HTable(conf, table);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		Get g =new Get(Bytes.toBytes(key));
+		for (Column column : fields){
+			g.addColumn(Bytes.toBytes(column.columnFamily), Bytes.toBytes(column.column));
+		}
+		try {
+			result = mytable.get(g);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}	
+		return true;
 	}
 
 }
