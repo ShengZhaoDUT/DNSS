@@ -1,6 +1,8 @@
 package com.db.hbase;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
@@ -15,7 +17,7 @@ import com.db.common.ReadImplement;
 public class HbaseReader{
 
 	private Configuration conf;
-	private Result result;
+	//private Result result;
 	public HbaseReader(HbaseObject h){
 		conf = h.getConf();
 	}
@@ -36,7 +38,12 @@ public class HbaseReader{
 			g.addColumn(Bytes.toBytes(column.columnFamily), Bytes.toBytes(column.column));
 		}
 		try {
-			result = mytable.get(g);
+			Result r = mytable.get(g);//Result object
+			//need to translate into Hashmap<column string>
+		for (Column column : fields){
+			byte[] b = r.getValue(Bytes.toBytes(column.columnFamily),Bytes.toBytes(column.column));
+			((HashMap<Column,String>) result).put(column,b.toString());
+		}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
