@@ -54,7 +54,7 @@ public class HeteroDB {
 		mongoReader.read(dbName, table, key, fields, result);
 	}
 	public void read(String dbName, String table, String start, int range, Set<Column> fields, Map<Column,String> result) {
-		//HBase Read
+		//HBase Read(Scan)
 		HbaseScanner hbasescanner = new HbaseScanner(hbaseDBObject);
 		hbasescanner.scan(null, table, start, 0, fields, result);
 	}
