@@ -66,7 +66,7 @@ public class test {
 				e.printStackTrace();
 			}
 			
-			try {
+			/*try {
 				MongoDBDeleter mongoDBDeleter = new MongoDBDeleter(mDbObject);
 				if(mongoDBDeleter.delete("test", "user", "ShengZhao")) {
 					System.out.println("Delete Successful");
@@ -76,7 +76,7 @@ public class test {
 				}
 			} catch(Exception e) {
 				e.printStackTrace();
-			}
+			}*/
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
