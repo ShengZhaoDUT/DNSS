@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.db.common.Configuration;
+import com.db.configure.DataBase;
 import com.db.mongoDB.MongoDBConfiguration;
 import com.db.mongoDB.MongoDBDeleter;
 import com.db.mongoDB.MongoDBObject;
@@ -18,6 +19,10 @@ import com.db.mongoDB.MongoDBWriter;
 public class test {
 	
 	public static void main(String args[]) {
+		DataBase.setMongoHost("166.111.131.99");
+		DataBase.setMongoPort(8188);
+		DataBase.setdbName("test");
+		
 		Configuration configuration = new MongoDBConfiguration();
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("_id", "ShengZhao");
@@ -28,7 +33,7 @@ public class test {
 		MongoDBObject mDbObject;
 		try {
 			mDbObject = new MongoDBObject(configuration);
-			try {
+			/*try {
 				MongoDBWriter mongoDBWriter = new MongoDBWriter(mDbObject);
 				mongoDBWriter.write("test", "user", list);
 			} catch (Exception e) {
@@ -50,11 +55,11 @@ public class test {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-			}
+			}*/
 			
 			try {
 				map.clear();
-				map.put("Name", "JiangHua");
+				map.put("email", "zs@163.com");
 				MongoDBUpdater mongoDBUpdater = new MongoDBUpdater(mDbObject);
 				if(mongoDBUpdater.update("test", "user", "ShengZhao", map)) {
 					System.out.println("Update Successful");

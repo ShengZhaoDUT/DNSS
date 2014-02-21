@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/zs/dependence/mongo-2.10.1.jar"/>
 	<classpathentry kind="lib" path="/home/zs/hbase-0.94.15/hbase-0.94.15.jar"/>
 	<classpathentry kind="lib" path="/home/zs/hbase-0.94.15/lib/activation-1.1.jar"/>
 	<classpathentry kind="lib" path="/home/zs/hbase-0.94.15/lib/asm-3.1.jar"/>
@@ -61,5 +60,6 @@
 	<classpathentry kind="lib" path="/home/zs/hbase-0.94.15/lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="/home/zs/hbase-0.94.15/lib/xmlenc-0.52.jar"/>
 	<classpathentry kind="lib" path="/home/zs/hbase-0.94.15/lib/zookeeper-3.4.5.jar"/>
+	<classpathentry kind="lib" path="/home/zs/workspace/dependence/mongo-2.10.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
