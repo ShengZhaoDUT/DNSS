@@ -6,12 +6,12 @@ import com.db.configure.DataBase;
 public class MongoDBConfiguration extends Configuration{
 	
 	public String getDBMasterHost() {
-		return DataBase.mongoDBMasterHost; 
+		return DataBase.getMongoHost(); 
 	}
 	public int getDBMasterPort() {
-		return DataBase.mongoDBMasterPort;
+		return DataBase.getMongoPort();
 	}
 	public String getDBName() {
-		return DataBase.dbName;
+		return DataBase.getdbName();
 	}
 }

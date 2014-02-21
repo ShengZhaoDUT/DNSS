@@ -34,8 +34,6 @@ public class HbaseWriter implements WriteImplement{
 		Map<Column, String> result = (Map<Column, String>)mylist;
 		for(Column c:result.keySet())
 		{
-			
-		
 			String rowname = c.rowname;
 			Put p = new Put(Bytes.toBytes(rowname));
 			p.add(Bytes.toBytes(c.columnFamily),Bytes.toBytes(c.column),Bytes.toBytes(result.get(c)));

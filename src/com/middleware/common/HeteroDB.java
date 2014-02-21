@@ -2,7 +2,6 @@ package com.middleware.common;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +10,7 @@ import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 
 import com.db.common.Configuration;
+import com.db.configure.DataBase;
 import com.db.hbase.Column;
 import com.db.hbase.HbaseConfiguration;
 import com.db.hbase.HbaseObject;
@@ -25,8 +25,24 @@ import com.db.mongoDB.MongoDBWriter;
 public class HeteroDB {
 	private MongoDBObject mongoDBObject;
 	private HbaseObject hbaseDBObject;
+	public HeteroDB(MongoDBConfiguration mongConf, HbaseConfiguration hbaseConf) {
+		DataBase.setMongoHost("166.111.131.99");
+		DataBase.setMongoPort(8188);
+		DataBase.setdbName("test");
+		try {
+			mongoDBObject = new MongoDBObject(mongConf);
+			hbaseDBObject = new HbaseObject(hbaseConf);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch(MasterNotRunningException e) {
+			e.printStackTrace();
+		} catch(ZooKeeperConnectionException e) {
+			e.printStackTrace();
+		}
+	}
 	
-	public boolean init() {
+	/*public boolean init() {
 		Configuration mongoConf = new MongoDBConfiguration();
 		try {
 			mongoDBObject = new MongoDBObject(mongoConf);
@@ -45,7 +61,7 @@ public class HeteroDB {
 			e.printStackTrace();
 			return false;
 		}
-	}
+	}*/
 	public void close() {
 		mongoDBObject.close();
 	}
