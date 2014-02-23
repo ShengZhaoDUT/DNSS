@@ -1,7 +1,7 @@
 package com.db.utility;
 
 public class LastUpdateTime {
-	private static long time;
+	private static long time = 0;
 	// sync to mem
 	public static void setUpdateTime(long last) {
 		time = last;

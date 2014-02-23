@@ -77,13 +77,13 @@ public class HeteroDB {
 			for(Map.Entry<String, List<item>> mapEle : content.entrySet()) {
 				row = mapEle.getKey();
 				value = mapEle.getValue();
+				Put log = new Put(Bytes.toBytes(prefix + String.valueOf(row.hashCode())));
+				//log.add(Bytes.toBytes("insert"), Bytes.toBytes("op"), Bytes.toBytes("i"));
+				//log.add(Bytes.toBytes("insert"), Bytes.toBytes("table"), Bytes.toBytes(table));
 				for(item it : value) {
-					Put log = new Put(Bytes.toBytes(prefix + String.valueOf(it.hashCode())));
-					log.add(Bytes.toBytes("details"), Bytes.toBytes("op"), Bytes.toBytes("i"));
-					log.add(Bytes.toBytes("msg"), Bytes.toBytes(it.c), Bytes.toBytes(it.v));
-					log.add(Bytes.toBytes("msg"), Bytes.toBytes("key"), Bytes.toBytes(row));
-					oplog.add(log);
+					log.add(Bytes.toBytes("oplog"), Bytes.toBytes("insert_" + table + "_" + row + "_" + it.c), Bytes.toBytes(it.v));
 				}
+				oplog.add(log);
 			}
 			htable.close();
 			htable = new HTable(conf, Bytes.toBytes("oplog"));
@@ -115,13 +115,14 @@ public class HeteroDB {
 			String prefix = String.valueOf(timestamp);
 			htable.close();
 			htable = new HTable(conf, Bytes.toBytes("oplog"));
+			Put log = new Put(Bytes.toBytes(prefix + String.valueOf(row.hashCode())));
+			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("op"), Bytes.toBytes("i"));
+			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("key"), Bytes.toBytes(row));
+			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("table"), Bytes.toBytes(table));
 			for(item it : content) {
-				Put log = new Put(Bytes.toBytes(prefix + String.valueOf(it.hashCode())));
-				log.add(Bytes.toBytes("details"), Bytes.toBytes("op"), Bytes.toBytes("i"));
-				log.add(Bytes.toBytes("msg"), Bytes.toBytes(it.c), Bytes.toBytes(it.v));
-				log.add(Bytes.toBytes("msg"), Bytes.toBytes("key"), Bytes.toBytes(row));
-				oplog.add(log);
+				log.add(Bytes.toBytes("oplog"), Bytes.toBytes("insert_" + table + "_" + row + "_" + it.c), Bytes.toBytes(it.v));
 			}
+			oplog.add(log);
 			htable.close();
 			htable = new HTable(conf, Bytes.toBytes("oplog"));
 			htable.put(oplog);
@@ -144,10 +145,12 @@ public class HeteroDB {
 			Result result_foo = htable.get(get);
 			long timestamp = result_foo.rawCells()[0].getTimestamp();
 			String prefix = String.valueOf(timestamp);
-			Put log = new Put(Bytes.toBytes(prefix + String.valueOf(content.hashCode())));
-			log.add(Bytes.toBytes("details"), Bytes.toBytes("op"), Bytes.toBytes("i"));
-			log.add(Bytes.toBytes("msg"), Bytes.toBytes(content.c), Bytes.toBytes(content.v));
-			log.add(Bytes.toBytes("msg"), Bytes.toBytes("key"), Bytes.toBytes(row));
+			Put log = new Put(Bytes.toBytes(prefix + String.valueOf(row.hashCode())));
+			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("op"), Bytes.toBytes("i"));
+			//log.add(Bytes.toBytes("insert"), Bytes.toBytes(content.c), Bytes.toBytes(content.v));
+			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("key"), Bytes.toBytes(row));
+			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("table"), Bytes.toBytes(table));
+			log.add(Bytes.toBytes("insert_" + table + "_" + row), Bytes.toBytes(content.c), Bytes.toBytes(content.v));
 			htable.close();
 			htable = new HTable(conf, Bytes.toBytes("oplog"));
 			htable.put(log);

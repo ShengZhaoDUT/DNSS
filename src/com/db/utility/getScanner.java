@@ -35,7 +35,7 @@ public class getScanner {
 		try {
 			HTable htable = new HTable(conf, Bytes.toBytes("oplog"));
 			Scan scan = new Scan();
-			Filter filter = new RowFilter(CompareOp.LESS_OR_EQUAL,  
+			Filter filter = new RowFilter(CompareOp.GREATER,  
 				      new BinaryComparator(Bytes.toBytes(lastUpdateTime)));
 			scan.setFilter(filter);  
 		    scanner = htable.getScanner(scan);

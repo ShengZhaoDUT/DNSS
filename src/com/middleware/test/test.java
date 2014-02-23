@@ -14,6 +14,8 @@ import com.db.configure.DataBase;
 import com.db.hbase.Column;
 import com.db.hbase.HbaseConfiguration;
 import com.db.mongoDB.MongoDBConfiguration;
+import com.db.utility.getScanner;
+import com.db.utility.pool;
 import com.middleware.common.HeteroDB;
 
 public class test {
@@ -56,6 +58,9 @@ public class test {
 		content.add(item3);
 		map.put("1", content);
 		db.insert("dbName", "test", map);
+		getScanner getscanner = new getScanner(hbaseConf);
+		pool syncPool = new pool(mongoConf);
+		syncPool.syncService();
 		//Column c = new Column("article", "title", )
 	}
 }
