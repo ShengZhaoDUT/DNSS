@@ -1,5 +1,6 @@
 package com.db.test;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,7 +17,7 @@ import com.db.hbase.HbaseReader;
 import com.db.hbase.HbaseWriter;
 
 public class TestHbase {
-	public static void main(String args[]) throws MasterNotRunningException, ZooKeeperConnectionException
+	public static void main(String args[]) throws IOException
 	{
 		HbaseObject h = new HbaseObject(new HbaseConfiguration());
 		HbaseWriter w = new HbaseWriter(h);

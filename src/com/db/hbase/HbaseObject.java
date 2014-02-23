@@ -1,5 +1,7 @@
 package com.db.hbase;
 
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.MasterNotRunningException;
@@ -9,7 +11,7 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 public class HbaseObject {
 	private HBaseAdmin admin;
 	private org.apache.hadoop.conf.Configuration conf;
-	public HbaseObject(HbaseConfiguration hcf) throws MasterNotRunningException, ZooKeeperConnectionException
+	public HbaseObject(HbaseConfiguration hcf) throws IOException
 	{
 		conf = HBaseConfiguration.create();
 		conf.set("hbase.zookeeper.quorum", hcf.getDBMasterHost());
