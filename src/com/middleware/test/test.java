@@ -57,9 +57,8 @@ public class test {
 		content.add(item2);
 		content.add(item3);
 		map.put("1", content);
-		db.insert("dbName", "test", map);
-		getScanner getscanner = new getScanner(hbaseConf);
-		pool syncPool = new pool(mongoConf);
+		//db.insert("dbName", "test", map);
+		pool syncPool = new pool(mongoConf, hbaseConf);
 		syncPool.syncService();
 		//Column c = new Column("article", "title", )
 	}

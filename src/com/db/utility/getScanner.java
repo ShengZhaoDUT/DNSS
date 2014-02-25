@@ -3,6 +3,8 @@ package com.db.utility;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -18,7 +20,6 @@ import com.db.hbase.HbaseObject;
 
 // sync oplog to mongodb
 public class getScanner {
-	private long lastUpdateTime;
 	private HbaseObject hbaseDBObject;
 	private Configuration conf;
 	ResultScanner scanner;
@@ -36,7 +37,8 @@ public class getScanner {
 			HTable htable = new HTable(conf, Bytes.toBytes("oplog"));
 			Scan scan = new Scan();
 			Filter filter = new RowFilter(CompareOp.GREATER,  
-				      new BinaryComparator(Bytes.toBytes(lastUpdateTime)));
+				      new BinaryComparator(Bytes.toBytes(LastUpdateTime.getUpdateTime())));
+			System.out.println(LastUpdateTime.getUpdateTime());
 			scan.setFilter(filter);  
 		    scanner = htable.getScanner(scan);
 		    return true;
@@ -47,6 +49,7 @@ public class getScanner {
 		} 
 	}
 	public ResultScanner getResult() {
+		getOplog();
 		return scanner;
 	}
 }
