@@ -15,6 +15,7 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.jruby.ext.zlib.RubyZlib.NeedDict;
 
 import com.db.factory.MongoInstance;
 import com.db.hbase.HbaseConfiguration;
@@ -44,12 +45,13 @@ public class pool {
         getscanner = new getScanner();
 		map = new HashMap<String, Map>();
 	}
-	public long dataPre() throws IOException {	
+	public String dataPre() throws IOException {	
 		ResultScanner scanner = getscanner.getResult();
 		Result first = scanner.next();
+		String resultTime = LastUpdateTime.getUpdateTime();
 		if(first == null) {
 			scanner.close();
-			return false;
+			return resultTime;
 		}
 		for(Result r = first; r != null; r = scanner.next()) {
 			for(Cell cell : r.listCells()) {
@@ -98,6 +100,8 @@ public class pool {
 				else {
 					((DBObject)((Map) map.get(body[1]).get(body[0])).get(body[2])).put(body[3], value);
 				}
+				resultTime = new String(CellUtil.cloneRow(cell)).substring(0, 13);
+				System.out.println("resultTime " + resultTime);
 			}
 		}
 		scanner.close();
@@ -120,20 +124,21 @@ public class pool {
 				}
 			}
 		}*/
-		return true;
+		return resultTime;
 	}
 	public void syncService() {
 		while(true) {
-			long syncTime;
+			String syncTime = LastUpdateTime.getUpdateTime();
 			try {
 				syncTime = dataPre();
+				System.out.println(syncTime + " need to sync!");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			if(map.isEmpty()) {
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -141,27 +146,37 @@ public class pool {
 			}
 			else {
 				for(Entry<String, Map> element : map.entrySet()) {
-					String dbName = element.getKey();
+					final String dbName = element.getKey();
 					System.out.println("dbName:" + dbName);
 					Map<String, Map> value = element.getValue();
 					for(Entry<String, Map> item : value.entrySet()) {
-						String op = item.getKey();
+						final String op = item.getKey();
 						System.out.println("op:" + op);
 						Map<String, DBObject> log = item.getValue();
 						for(Entry<String, DBObject> finalitem : log.entrySet()) {
 							String row = finalitem.getKey();
 							System.out.println("row:" + row);
-							DBObject finalvalue = finalitem.getValue();
+							final DBObject finalvalue = finalitem.getValue();
+							final DBObject dbObject = new BasicDBObject();
 							//DBObject dbo = new BasicDBObject();
-							finalvalue.put("_id", row);
-							/*syncPool.execute(new Runnable() {
+							if(op.equals("insert"))
+								finalvalue.put("_id", row);
+							else if(op.equals("update")) {
+								dbObject.put("_id", row);
+							}
+							syncPool.execute(new Runnable() {
 
 								@Override
 								public void run() {
 									// TODO Auto-generated method stub
 									DB db = mongo.getDB("default");
 									DBCollection dbCollection = db.getCollection(dbName);
-									dbCollection.insert(finalvalue);
+									if(op.equals("insert")) {
+										dbCollection.insert(finalvalue);
+									}
+									else {
+										dbCollection.update(dbObject, finalvalue);
+									}
 								}
 								
 							});
@@ -172,7 +187,7 @@ public class pool {
 								} while(loop);
 							} catch(InterruptedException e) {
 								e.printStackTrace();
-							}*/
+							}
 							DB db = mongo.getDB("default");
 							DBCollection dbCollection = db.getCollection(dbName);
 							dbCollection.insert(finalvalue);
@@ -189,6 +204,8 @@ public class pool {
 				}
 			}
 			map.clear();
-	//	}
+			LastUpdateTime.setUpdateTime(syncTime);
+			System.out.println("The data from " + syncTime + " complete!");
+		}
 	}
 }

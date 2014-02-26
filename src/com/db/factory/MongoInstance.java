@@ -9,7 +9,7 @@ public class MongoInstance {
 	
 	private static Mongo mongo = null;
 	
-	public static void set(String hostName, int port, int poolSize, int queueSize) {
+	public static void setAndInit(String hostName, int port, int poolSize, int queueSize) {
 		try {
 			mongo = new Mongo(hostName, port);
 			MongoOptions opt = mongo.getMongoOptions();

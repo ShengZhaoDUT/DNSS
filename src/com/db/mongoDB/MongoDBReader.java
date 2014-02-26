@@ -18,8 +18,8 @@ public class MongoDBReader implements ReadImplement{
 	private DB db;
 	protected static final Integer INCLUDE = Integer.valueOf(1);
 	
-	public MongoDBReader(MongoDBObject MObject) {
-		mongo = MObject.getMongo();
+	public MongoDBReader(Mongo mongoInstance) {
+		mongo = mongoInstance;
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -1,54 +1,34 @@
 package com.middleware.common;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.thrift2.generated.THBaseService.Processor.put;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.jruby.ext.zlib.RubyZlib.NeedDict;
 
 import com.db.common.item;
-import com.db.configure.DataBase;
-import com.db.hbase.HbaseConfiguration;
-import com.db.hbase.HbaseObject;
-import com.db.mongoDB.MongoDBConfiguration;
-import com.db.mongoDB.MongoDBObject;
+import com.db.factory.HBaseInstance;
+import com.db.factory.MongoInstance;
 import com.db.mongoDB.MongoDBReader;
+import com.mongodb.Mongo;
 
 public class HeteroDB {
-	private MongoDBObject mongoDBObject;
-	private HbaseObject hbaseDBObject;
-	private Configuration conf;
+	//private MongoDBObject mongoDBObject;
+	//private HbaseObject hbaseDBObject;
+	private Mongo mongo = null;
+	private String logName = "oplog";
 	
-	public HeteroDB(MongoDBConfiguration mongConf, HbaseConfiguration hbaseConf) throws IOException {
-		try {
-			mongoDBObject = new MongoDBObject(mongConf);
-			hbaseDBObject = new HbaseObject(hbaseConf);
-			conf = hbaseDBObject.getConf();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch(MasterNotRunningException e) {
-			e.printStackTrace();
-		} catch(ZooKeeperConnectionException e) {
-			e.printStackTrace();
-		}
+	public HeteroDB() throws IOException {
+		mongo = MongoInstance.getMongoInstance();
 	}
 	
-	public void close() {
-		mongoDBObject.close();
-	}
 	// 插入成功后要求返回时间戳，这个是hbase时间，便于同步，然后作为oplog插入的rowkey
 	public void insert(String dbName, String table, Map<String, List<item>> content) {
 		List<Put> result = new ArrayList<Put>();
@@ -67,7 +47,7 @@ public class HeteroDB {
 		item tmp = content.get(row).get(0);
 		try {
 			// create table
-			HTable htable = new HTable(conf, Bytes.toBytes(table));
+			HTable htable = (HTable)HBaseInstance.getHBaseInstance(table);
 			htable.put(result);
 			//long timestamp = HConstants.LATEST_TIMESTAMP;
 			// get timestamp, it's server's clock
@@ -89,7 +69,8 @@ public class HeteroDB {
 				oplog.add(log);
 			}
 			htable.close();
-			htable = new HTable(conf, Bytes.toBytes("oplog"));
+			//htable = new HTable(conf, Bytes.toBytes("oplog"));
+			htable = (HTable)HBaseInstance.getHBaseInstance(logName);
 			htable.put(oplog);
 			htable.close();
 		} catch (IOException e) {
@@ -108,7 +89,8 @@ public class HeteroDB {
 			//result.add(put);
 		}
 		try {
-			HTable htable = new HTable(conf, Bytes.toBytes(table));
+			//HTable htable = new HTable(conf, Bytes.toBytes(table));
+			HTable htable = (HTable)HBaseInstance.getHBaseInstance(table);
 			htable.put(put);
 			Get get = new Get(Bytes.toBytes(row));
 			item tmp = content.get(0);
@@ -117,17 +99,16 @@ public class HeteroDB {
 			long timestamp = result_foo.rawCells()[0].getTimestamp();
 			String prefix = String.valueOf(timestamp);
 			htable.close();
-			htable = new HTable(conf, Bytes.toBytes("oplog"));
+			//htable = new HTable(conf, Bytes.toBytes("oplog"));
+			htable = (HTable)HBaseInstance.getHBaseInstance(logName);
 			Put log = new Put(Bytes.toBytes(prefix + String.valueOf(row.hashCode())));
 			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("op"), Bytes.toBytes("i"));
 			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("key"), Bytes.toBytes(row));
 			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("table"), Bytes.toBytes(table));
 			for(item it : content) {
-				log.add(Bytes.toBytes("oplog"), Bytes.toBytes("insert_" + table + "_" + row + "_" + it.c), Bytes.toBytes(it.v));
+				log.add(Bytes.toBytes(logName), Bytes.toBytes("insert_" + table + "_" + row + "_" + it.c), Bytes.toBytes(it.v));
 			}
 			oplog.add(log);
-			htable.close();
-			htable = new HTable(conf, Bytes.toBytes("oplog"));
 			htable.put(oplog);
 			htable.close();
 		} catch (IOException e) {
@@ -141,7 +122,8 @@ public class HeteroDB {
 		Put put = new Put(Bytes.toBytes(row));
 		put.add(Bytes.toBytes(content.cf), Bytes.toBytes(content.c), Bytes.toBytes(content.v));
 		try {
-			HTable htable = new HTable(conf, Bytes.toBytes(table));
+			//HTable htable = new HTable(conf, Bytes.toBytes(table));
+			HTable htable = (HTable)HBaseInstance.getHBaseInstance(table);
 			htable.put(put);
 			Get get = new Get(Bytes.toBytes(row));
 			get.addColumn(Bytes.toBytes(content.cf), Bytes.toBytes(content.c));
@@ -153,9 +135,9 @@ public class HeteroDB {
 			//log.add(Bytes.toBytes("insert"), Bytes.toBytes(content.c), Bytes.toBytes(content.v));
 			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("key"), Bytes.toBytes(row));
 			//log.add(Bytes.toBytes("insert"), Bytes.toBytes("table"), Bytes.toBytes(table));
-			log.add(Bytes.toBytes("insert_" + table + "_" + row), Bytes.toBytes(content.c), Bytes.toBytes(content.v));
+			log.add(Bytes.toBytes(logName), Bytes.toBytes("insert_" + table + "_" + row + "_" + content.c), Bytes.toBytes(content.v));
 			htable.close();
-			htable = new HTable(conf, Bytes.toBytes("oplog"));
+			htable = (HTable)HBaseInstance.getHBaseInstance(logName);
 			htable.put(log);
 			htable.close();
 		} catch (IOException e) {
@@ -179,12 +161,15 @@ public class HeteroDB {
 			i++;
 		}
 		try {
-			HTable hTable = new HTable(conf, table);
+			HTable hTable = (HTable)HBaseInstance.getHBaseInstance(table);
 			hTable.put(result);
 			Get get = new Get(Bytes.toBytes(rowSet.get(0)));
+			item tmp = (item)content.get(0).get(0);
+			get.addColumn(Bytes.toBytes(tmp.cf), Bytes.toBytes(tmp.c));
 			Result result_foo = hTable.get(get);
 			long timestamp = result_foo.rawCells()[0].getTimestamp();
 			String prefix = String.valueOf(timestamp);
+			System.out.println(timestamp + " Get!");
 			hTable.close();
 			for(String row : rowSet) {
 				int i = 0;
@@ -194,10 +179,8 @@ public class HeteroDB {
 					log.add(Bytes.toBytes("oplog"), Bytes.toBytes("update_" + table + "_" + row + "_" + it.c), Bytes.toBytes(it.v));
 				}
 				oplog.add(log);
-				hTable.put(log);
-				hTable.close();
 			}
-			hTable = new HTable(conf, "oplog");
+			hTable = (HTable)HBaseInstance.getHBaseInstance(logName);
 			hTable.put(oplog);
 			hTable.close();
 		} catch (IOException e) {
@@ -211,7 +194,7 @@ public class HeteroDB {
 		result.add(Bytes.toBytes(content.cf), Bytes.toBytes(content.c), Bytes.toBytes(content.v));
 		HTable hTable;
 		try {
-			hTable = new HTable(conf, table);
+			hTable = (HTable)HBaseInstance.getHBaseInstance(table);
 			hTable.put(result);
 			Get get = new Get(Bytes.toBytes(row));
 			Result result_foo = hTable.get(get);
@@ -220,7 +203,7 @@ public class HeteroDB {
 			Put oplog = new Put(Bytes.toBytes(prefix + String.valueOf(content.hashCode())));
 			oplog.add(Bytes.toBytes("oplog"), Bytes.toBytes("update_" + table + "_" + row + "_" + content.c), Bytes.toBytes(content.v));
 			hTable.close();
-			hTable = new HTable(conf, "oplog");
+			hTable = (HTable)HBaseInstance.getHBaseInstance(logName);
 			hTable.put(oplog);
 			hTable.close();
 		} catch (IOException e) {
@@ -232,7 +215,7 @@ public class HeteroDB {
 		
 	}
 	public void read(String dbName, String table, String key, Set<String> fields, Map<String, String>result) {
-		MongoDBReader mongoReader = new MongoDBReader(mongoDBObject);
+		MongoDBReader mongoReader = new MongoDBReader(mongo);
 		mongoReader.read(dbName, table, key, fields, result);
 	}
 	/*public void read(String dbName, String table, String start, int range, Set<Column> fields, Map<Column,String> result) {

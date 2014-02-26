@@ -6,6 +6,7 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
+import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.RowFilter;
@@ -26,9 +27,9 @@ public class getScanner {
 	public boolean getOplog() {
 		try {
 			Scan scan = new Scan();
-			Filter filter = new RowFilter(CompareOp.GREATER,  
-				      new BinaryComparator(Bytes.toBytes(LastUpdateTime.getUpdateTime())));
-			System.out.println(LastUpdateTime.getUpdateTime());
+			Filter filter = new RowFilter(CompareFilter.CompareOp.GREATER,  
+				      new BinaryComparator(Bytes.toBytes(String.valueOf(Long.parseLong(LastUpdateTime.getUpdateTime()) + 1))));
+			System.out.println(String.valueOf(Long.parseLong(LastUpdateTime.getUpdateTime()) + 1));
 			scan.setFilter(filter);  
 		    scanner = hTable.getScanner(scan);
 		    // need to set time, no api to know the last line, so delay, can get the time when sync()
