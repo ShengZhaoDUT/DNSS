@@ -228,6 +228,9 @@ public class HeteroDB {
 			e.printStackTrace();
 		}
 	}
+	public void delete(String dbName, String table, String key) {
+		
+	}
 	public void read(String dbName, String table, String key, Set<String> fields, Map<String, String>result) {
 		MongoDBReader mongoReader = new MongoDBReader(mongoDBObject);
 		mongoReader.read(dbName, table, key, fields, result);

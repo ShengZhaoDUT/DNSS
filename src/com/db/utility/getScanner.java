@@ -2,11 +2,7 @@ package com.db.utility;
 
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
@@ -16,8 +12,6 @@ import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.db.factory.HBaseInstance;
-import com.db.hbase.HbaseConfiguration;
-import com.db.hbase.HbaseObject;
 
 // sync oplog to mongodb
 public class getScanner {
@@ -26,7 +20,7 @@ public class getScanner {
 	private HTable hTable = null;
 	private ResultScanner scanner = null;
 	private String tableName = "oplog";
-	public getScanner(HbaseConfiguration hbaseConf) {
+	public getScanner() {
 		hTable = (HTable)HBaseInstance.getHBaseInstance(tableName);
 	}
 	public boolean getOplog() {

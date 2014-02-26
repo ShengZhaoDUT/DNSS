@@ -16,6 +16,7 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
+import com.db.factory.MongoInstance;
 import com.db.hbase.HbaseConfiguration;
 import com.db.mongoDB.MongoDBConfiguration;
 import com.mongodb.BasicDBObject;
@@ -34,23 +35,16 @@ public class pool {
 	private ExecutorService syncPool;
 	private Map<String, Map> map;
 	private getScanner getscanner;
-	public pool(MongoDBConfiguration conf, HbaseConfiguration hbaseConf) {
-		try {
-			// create mongo instance
-			mongo = new Mongo(conf.getDBMasterHost(), conf.getDBMasterPort());
-			MongoOptions opt = mongo.getMongoOptions();
-            opt.connectionsPerHost = poolSize;
-            opt.threadsAllowedToBlockForConnectionMultiplier = queueSize;
-            // create Java thread pool
-            syncPool = Executors.newFixedThreadPool(poolSize * queueSize);
-            getscanner = new getScanner(hbaseConf);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public pool() {
+		
+		// create mongo instance
+		mongo = MongoInstance.getMongoInstance();
+        // create Java thread pool
+        syncPool = Executors.newFixedThreadPool(poolSize * queueSize);
+        getscanner = new getScanner();
 		map = new HashMap<String, Map>();
 	}
-	public boolean sync() throws IOException {	
+	public long dataPre() throws IOException {	
 		ResultScanner scanner = getscanner.getResult();
 		Result first = scanner.next();
 		if(first == null) {
@@ -59,12 +53,8 @@ public class pool {
 		}
 		for(Result r = first; r != null; r = scanner.next()) {
 			for(Cell cell : r.listCells()) {
-				//String op = new String (CellUtil.cloneFamily(cell));
 				String key = new String(CellUtil.cloneQualifier(cell));
 				String value = new String(CellUtil.cloneValue(cell));
-				/*if(key.equals("op")) {
-					
-				}*/
 				System.out.println(key);
 				System.out.println(value);
 				String[] body = key.split("_");
@@ -133,9 +123,10 @@ public class pool {
 		return true;
 	}
 	public void syncService() {
-		//while(true) {
+		while(true) {
+			long syncTime;
 			try {
-				sync();
+				syncTime = dataPre();
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
