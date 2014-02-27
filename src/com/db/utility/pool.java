@@ -17,6 +17,8 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.jruby.ext.zlib.RubyZlib.NeedDict;
 
+import com.db.common.Task;
+import com.db.common.TaskQueue;
 import com.db.factory.MongoInstance;
 import com.db.hbase.HbaseConfiguration;
 import com.db.mongoDB.MongoDBConfiguration;
@@ -126,7 +128,7 @@ public class pool {
 		}*/
 		return resultTime;
 	}
-	public void syncService() {
+	/*public void syncService() {
 		while(true) {
 			String syncTime = LastUpdateTime.getUpdateTime();
 			try {
@@ -191,14 +193,6 @@ public class pool {
 							DB db = mongo.getDB("default");
 							DBCollection dbCollection = db.getCollection(dbName);
 							dbCollection.insert(finalvalue);
-							/*System.out.println("show details:");
-							for(DBObject tmp : finalvalue) {
-								//Map<String, String> map = tmp.toMap();
-								for(String ele : tmp.keySet()) {
-									System.out.println(ele);
-									System.out.println(tmp.get(ele));
-								}
-							}*/
 						}
 					}
 				}
@@ -206,6 +200,33 @@ public class pool {
 			map.clear();
 			LastUpdateTime.setUpdateTime(syncTime);
 			System.out.println("The data from " + syncTime + " complete!");
+		}
+	}*/
+	public void syncService() {
+		while(true) {
+			if(TaskQueue.queue.isEmpty()) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else {
+				while(!TaskQueue.queue.isEmpty()) {
+					Task task = TaskQueue.queue.poll();
+					syncTask synctask = new syncTask(task, mongo);
+					syncPool.execute(synctask);
+				}
+				try {
+					boolean loop = true;
+					do {
+						loop = !syncPool.awaitTermination(1, TimeUnit.SECONDS);
+					} while(loop);
+				} catch(InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }

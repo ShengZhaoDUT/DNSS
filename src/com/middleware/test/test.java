@@ -74,11 +74,8 @@ public class test {
 		content.add(item2);
 		content.add(item3);
 		
-		Map<String, List<item>> map = new HashMap<String, List<item>>();
-		map.put("1", content);
+		db.insert(dbName, table, "1", content);*/
 		
-		db.insert(dbName, table, map);
-		*/
 		// test2: insert(String dbName, String table, String row, List<item> content)
 		
 		/*item item1 = new item("details", "name", "zhaosheng1");
