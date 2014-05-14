@@ -117,7 +117,7 @@ public class test {
 		
 		//db.update("dbName", "test", key, value);
 		
-		LastUpdateTime.setUpdateTime("1393162794329");
+		//LastUpdateTime.setUpdateTime("1393162794329");
 		pool syncPool = new pool();
 		syncPool.syncService();
 		//Column c = new Column("article", "title", )
