@@ -39,8 +39,9 @@ public class memcache {
 			System.out.println(entry.getValue());
 		}
  	}
-	
+	/*
     public static void main(String[] args) {
     	memcache mem = new memcache();
     }
+    */
 }
