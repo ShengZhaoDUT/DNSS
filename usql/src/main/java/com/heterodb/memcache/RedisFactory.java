@@ -1,4 +1,4 @@
-package com.thuhpc.client;
+package com.heterodb.memcache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +9,11 @@ import redis.clients.jedis.JedisShardInfo;
 import redis.clients.jedis.ShardedJedis;
 import redis.clients.jedis.ShardedJedisPool;
 
-public class RedisClient {
+public class RedisFactory {
 	
 	private ShardedJedisPool shardedJedisPool;
 	private ShardedJedis jedis;
-	private List<JedisShardInfo> shards = new ArrayList<JedisShardInfo>();
+	//private List<JedisShardInfo> shards = new ArrayList<JedisShardInfo>();
 	
 	private JedisPoolConfig poolConfig() {
 		JedisPoolConfig config = new JedisPoolConfig();
@@ -24,19 +24,16 @@ public class RedisClient {
 		return config;
 	}
 	
-	public RedisClient() {
+	public RedisFactory() {
 		JedisPoolConfig config = poolConfig();
-		shards.add(new JedisShardInfo("localhost", 6379));
-		shardedJedisPool = new ShardedJedisPool(config, shards);
+		List<JedisShardInfo> machineList = new ArrayList<JedisShardInfo>();
+		machineList.add(new JedisShardInfo("localhost", "6379"));
+		shardedJedisPool = new ShardedJedisPool(config, machineList);
 	}
 	
-	public RedisClient(Map<String, Integer> machineList) {
+	public RedisFactory(List<JedisShardInfo> machineList) {
 		JedisPoolConfig config = poolConfig();
-		for(Map.Entry<String, Integer> entry : machineList.entrySet()) {
-			JedisShardInfo jsi = new JedisShardInfo(entry.getKey(), entry.getValue());
-			shards.add(jsi);
-		}
-		shardedJedisPool = new ShardedJedisPool(config, shards);
+		shardedJedisPool = new ShardedJedisPool(config, machineList);
 	}
 	
 	public ShardedJedis getClient() {
