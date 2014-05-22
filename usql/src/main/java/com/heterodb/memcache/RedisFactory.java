@@ -1,14 +1,26 @@
+/*
+ * Create RedisPool, it can return jedis instance from a pool. 
+ */
+
 package com.heterodb.memcache;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisShardInfo;
 import redis.clients.jedis.ShardedJedis;
 import redis.clients.jedis.ShardedJedisPool;
 
+/**
+ * 
+ * @author zs
+ * @version 1.0
+ * Description: create Factory, set parameters of RedisPool.
+ * This Pool use consistent hash algorithm. Return ShardedJedis
+ * We need give a List represent machine list to construct RedisFactory.
+ * 
+ */
 public class RedisFactory {
 	
 	private ShardedJedisPool shardedJedisPool;
