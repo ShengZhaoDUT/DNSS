@@ -43,13 +43,13 @@ public class RedisTest {
 
 		RedisFactory redisFactory = new RedisFactory(machineList);
 		RedisInstance redisInstance = new RedisInstance(redisFactory);
-		for(int i = 0; i < 100; i++) {
+		for(int i = 0; i < 10000; i++) {
 			Map<String, String> keyval = new HashMap<String, String>();
 			keyval.put("value", String.valueOf(i));
 			redisInstance.insert(null, null, String.valueOf(i), keyval);
 		}
 		System.out.println("Done");
-		for(int i = 0; i < 100; i++) {
+		for(int i = 0; i < 10000; i++) {
 			JedisShardInfo s = redisInstance.getClient().getShardInfo(String.valueOf(i));
 			System.out.println(i + " " + s.getHost() + " " + s.getPort());
 		}
