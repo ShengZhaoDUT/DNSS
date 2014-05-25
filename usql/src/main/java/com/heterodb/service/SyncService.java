@@ -4,23 +4,24 @@
  */
 package com.heterodb.service;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Threads;
-import org.glassfish.grizzly.threadpool.SyncThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 
 import com.heterodb.db.HBaseFactory;
 import com.heterodb.db.MongodbFactory;
-import com.heterodb.db.MongodbInstance;
-import com.heterodb.memcache.Memcache;
-import com.heterodb.memcache.MemcacheFactory;
-import com.heterodb.memcache.RedisInstance;
 
 /**
  * 
@@ -48,26 +49,31 @@ public class SyncService {
 		//SingleRedis jedisInstance = srf.getInstance();
 		Jedis jedis = srf.getInstance();
 		Iterator iterator = getKeys(jedis, database);
-		Pipeline pipeline = jedis.pipelined();
+		//Pipeline pipeline = jedis.pipelined();
+		Set<String> keys = new HashSet<String>();
 		int i = 0;
 		while(iterator.hasNext()) {
 			String key = (String)iterator.next();
-			pipeline.hgetAll(key);
+			//pipeline.hgetAll(key);
+			keys.add(key);
 			i++;
 			if(i == threshold) {
 				i = 0;
 				//sync syncThreads = new sync(pipeline);
-				sync syncThreads = new sync(pipeline);
+				sync syncThreads = new sync(jedis, keys);
 				new Thread(syncThreads).start();
-				Jedis syncJedis = srf.getInstance();
-				pipeline = syncJedis.pipelined();
+				jedis = srf.getInstance();
+				keys = new HashSet<String>();
+				//pipeline = jedis.pipelined();
+			}
+			if(!iterator.hasNext()) {
+				i = 0;
+				sync syncThreads = new sync(jedis, keys);
+				new Thread(syncThreads).start();
 			}
 		}
 	}
 	
-	public boolean syncOnce(String key) {
-		
-	}
 	
 	public Iterator getKeys(Jedis jedis, int database) {
 		
@@ -80,12 +86,34 @@ public class SyncService {
 	
 	class sync implements Runnable {
 		
-		sync(Pipeline pipeline) {
+		private Jedis threadJedis;
+		private Set<String> threadKeys;
+		
+		sync(Jedis jedis, Set<String> keys) {
 			
+			threadJedis = jedis;
+			threadKeys = keys;
 		}
 		
 		public void run() {
-			logger.debug("new thread");
+			String tableName = "";
+			logger.debug("new thread: " + Thread.currentThread().getId());
+			Pipeline pipeline = threadJedis.pipelined();
+			for(String key : threadKeys) {
+				pipeline.hgetAll(key);
+			}
+			Response<List<Object>> response = pipeline.exec();
+			List<Object> result = response.get();
+			Iterator<Object> iterator = result.iterator();
+			Map<String, List<Put>> hContent = new HashMap<String, List<Put>>();
+			Map<String, List<DBObject>> mContent = new HashMap<String, List<DBObject>>();
+			while(iterator.hasNext()) {
+				Map<String, String> keyval = (Map<String, String>)iterator.next();
+				if(keyval.containsKey("table")) {
+					tableName = keyval.get("table");
+					
+				}
+			}
 		}
 	}
 }
