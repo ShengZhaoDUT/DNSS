@@ -1,4 +1,4 @@
-package com.thuhpc.usql;
+package com.thuhpc.unused;
 
 import java.util.HashMap;
 import java.util.Map;

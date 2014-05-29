@@ -7,6 +7,8 @@ package com.heterodb.memcache;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.heterodb.common.DBConfiguration;
+
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisShardInfo;
 import redis.clients.jedis.ShardedJedis;
@@ -23,36 +25,41 @@ import redis.clients.jedis.ShardedJedisPool;
  */
 public class RedisFactory {
 	
-	private ShardedJedisPool shardedJedisPool;
-	private ShardedJedis jedis;
+	private static ShardedJedisPool shardedJedisPool;
+	private static ShardedJedis jedis;
 	//private List<JedisShardInfo> shards = new ArrayList<JedisShardInfo>();
 	
-	private JedisPoolConfig poolConfig() {
+	static{
+		
+		int maxTotal = DBConfiguration.getInt("Redis_Total", 25);
+		int maxIdle = DBConfiguration.getInt("Redis_Idle", 5);
+		int maxMillis = DBConfiguration.getInt("Redis_WaitMillis", 1000 * 60);
 		JedisPoolConfig config = new JedisPoolConfig();
-		config.setMaxTotal(25);
-		config.setMaxIdle(5);
-		config.setMaxWaitMillis(1000 * 60);
+		config.setMaxTotal(maxTotal);
+		config.setMaxIdle(maxIdle);
+		config.setMaxWaitMillis(maxMillis);
 		config.setTestOnBorrow(true);
-		return config;
+		shardedJedisPool = new ShardedJedisPool(config, getMachineList());
 	}
 	
-	public RedisFactory() {
-		JedisPoolConfig config = poolConfig();
+	private static List<JedisShardInfo> getMachineList() {
 		List<JedisShardInfo> machineList = new ArrayList<JedisShardInfo>();
-		machineList.add(new JedisShardInfo("localhost", "6379"));
-		shardedJedisPool = new ShardedJedisPool(config, machineList);
+		String value = DBConfiguration.get("redis_shard", "localhost:6379");
+		String[] machines = value.split(";");
+		for(String machine : machines) {
+			String ip = machine.split(":")[0];
+			int port = Integer.valueOf(machine.split(":")[1]);
+			JedisShardInfo jsInfo = new JedisShardInfo(ip, port);
+			machineList.add(jsInfo);
+		}
+		return machineList;
 	}
 	
-	public RedisFactory(List<JedisShardInfo> machineList) {
-		JedisPoolConfig config = poolConfig();
-		shardedJedisPool = new ShardedJedisPool(config, machineList);
-	}
-	
-	public ShardedJedis getClient() {
+	public static ShardedJedis getClient() {
 		return shardedJedisPool.getResource();
 	}
 	
-	public void close() {
+	public static void close() {
 		jedis.disconnect();
 	}
 }

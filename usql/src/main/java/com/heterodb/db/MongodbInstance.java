@@ -19,8 +19,8 @@ public class MongodbInstance extends DB{
 	
 	//protected static final AtomicInteger InitCount = new AtomicInteger(0);
 	
-	public MongodbInstance(MongodbFactory mongoFactory) {
-		mongo = mongoFactory.getMongoInstance();
+	public MongodbInstance() {
+		mongo = MongodbFactory.getMongoInstance();
 	}
 
 	@Override

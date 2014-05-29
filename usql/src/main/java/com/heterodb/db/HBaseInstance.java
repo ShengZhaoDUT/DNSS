@@ -23,8 +23,8 @@ public class HBaseInstance extends DB{
 	private HTableInterface htable;
 	private byte columnFamilyBytes[] = Bytes.toBytes("Default");
 	
-	public HBaseInstance(HBaseFactory hBaseFactory, String table) {
-		htable = hBaseFactory.getHBaseInstance(table);
+	public HBaseInstance(String table) {
+		htable = HBaseFactory.getHBaseInstance(table);
 		try {
 			htable.setWriteBufferSize(1024*1024*12);
 			htable.setAutoFlush(false,true);

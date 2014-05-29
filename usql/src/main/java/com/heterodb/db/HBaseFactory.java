@@ -8,18 +8,19 @@ import org.apache.hadoop.hbase.client.HConnection;
 import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTableInterface;
 
+import com.heterodb.common.DBConfiguration;
+
 public class HBaseFactory {
 	
-	private HConnection hConnection = null;
-	private HBaseAdmin hBaseAdmin = null;
+	private static HConnection hConnection = null;
+	private static HBaseAdmin hBaseAdmin = null;
 	
-	public HBaseFactory(com.heterodb.common.Configuration conf) {
-		// TODO Auto-generated constructor stub
-		String hostname = conf.get("hbase-hostname", "localhost");
-		int port = conf.getInt("hbase-port", 2181);
+	static{
+		String hostname = DBConfiguration.get("hbase-hostname", "localhost");
+		int port = DBConfiguration.getInt("hbase-port", 2181);
 		org.apache.hadoop.conf.Configuration hbaseConf = HBaseConfiguration.create();
-		conf.set("hbase.zookeeper.quorum", hostname);
-		conf.set("hbase.zookeeper.property.clientPort", port + "");
+		hbaseConf.set("hbase.zookeeper.quorum", hostname);
+		hbaseConf.set("hbase.zookeeper.property.clientPort", port + "");
 		try {
 			hConnection = HConnectionManager.createConnection(hbaseConf);
 			hBaseAdmin = new HBaseAdmin(hbaseConf);
@@ -28,11 +29,12 @@ public class HBaseFactory {
 			e.printStackTrace();
 		}
 	}
-	public HBaseAdmin getHBaseAdmin() {
+	
+	public static HBaseAdmin getHBaseAdmin() {
 		return hBaseAdmin;
 	}
 	
-	public HTableInterface getHBaseInstance(String tableName) {
+	public static HTableInterface getHBaseInstance(String tableName) {
 		try {
 			return hConnection.getTable(tableName);
 		} catch (IOException e) {

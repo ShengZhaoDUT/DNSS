@@ -19,8 +19,8 @@ public class RedisInstance extends DB{
 		return shardedJedis;
 	}
 	
-	public RedisInstance(RedisFactory redisFactory) {
-		shardedJedis = redisFactory.getClient();
+	public RedisInstance() {
+		shardedJedis = RedisFactory.getClient();
 	}
 
 	@Override

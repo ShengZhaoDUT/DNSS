@@ -18,11 +18,7 @@ public class SingleRedis {
 	private Jedis jedis;
 	
 	public SingleRedis() {
-		jedis = new Jedis("localhost", 6379);
-	}
-	
-	public SingleRedis(Jedis jedis) {
-		this.jedis = jedis;
+		jedis = SingleRedisFactory.getInstance();
 	}
 	
 	public Jedis getRedis() {
@@ -40,5 +36,9 @@ public class SingleRedis {
 	public int read(String key, Map<String, String> value) {
 		value = jedis.hgetAll(key);
 		return value.isEmpty() ? 1 : 0;
+	}
+	
+	public void close() {
+		jedis.disconnect();
 	}
 }

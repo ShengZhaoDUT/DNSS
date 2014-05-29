@@ -41,8 +41,7 @@ public class RedisTest {
 		JedisShardInfo jsi = new JedisShardInfo(ip, 6379);
 		machineList.add(jsi);
 
-		RedisFactory redisFactory = new RedisFactory(machineList);
-		RedisInstance redisInstance = new RedisInstance(redisFactory);
+		RedisInstance redisInstance = new RedisInstance();
 		for(int i = 0; i < 10000; i++) {
 			Map<String, String> keyval = new HashMap<String, String>();
 			keyval.put("value", String.valueOf(i));

@@ -1,4 +1,4 @@
-package com.heterodb.memcache;
+package com.thuhpc.unused;
 
 import com.heterodb.common.Configuration;
 
