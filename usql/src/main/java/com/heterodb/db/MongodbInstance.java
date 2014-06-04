@@ -37,7 +37,7 @@ public class MongodbInstance extends DB{
 
 	@Override
 	public int read(String database, String table, String key, Set<String> fields,
-			HashMap<String, String> result) {
+			Map<String, String> result) {
 		// TODO Auto-generated method stub
 		com.mongodb.DB db = null;
 		db = mongo.getDB(database);

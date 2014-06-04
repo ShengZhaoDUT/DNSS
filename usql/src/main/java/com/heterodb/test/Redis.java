@@ -32,7 +32,7 @@ public class Redis extends DB{
 
 	@Override
 	public int read(String database, String table, String key,
-			Set<String> fields, HashMap<String, String> result) {
+			Set<String> fields, Map<String, String> result) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

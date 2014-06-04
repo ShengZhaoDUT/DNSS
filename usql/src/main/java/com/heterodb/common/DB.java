@@ -11,7 +11,7 @@ public abstract class DB {
 	
 	public abstract void cleanup();
 	
-	public abstract int read(String database, String table, String key, Set<String> fields, HashMap<String, String> result);
+	public abstract int read(String database, String table, String key, Set<String> fields, Map<String, String> result);
 	
 	public abstract int update(String database, String table, String key, Map<String, String> result);
 	

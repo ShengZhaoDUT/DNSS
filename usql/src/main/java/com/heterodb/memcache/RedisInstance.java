@@ -37,7 +37,7 @@ public class RedisInstance extends DB{
 
 	@Override
 	public int read(String database, String table, String key,
-			Set<String> fields, HashMap<String, String> result) {
+			Set<String> fields, Map<String, String> result) {
 		// TODO Auto-generated method stub
 		
 		return 0;
@@ -47,10 +47,8 @@ public class RedisInstance extends DB{
 	public int update(String database, String table, String key,
 			Map<String, String> result) {
 		// TODO Auto-generated method stub
-		if((shardedJedis.hmset(key, result)).equals("OK")) {
-			return 0;
-		}
-		return 1;
+		
+		return insert(database, table, key, result);
 	}
 	
 	@Override

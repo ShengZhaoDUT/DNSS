@@ -30,7 +30,7 @@ public class Memcache extends DB{
 	
 	@Override
 	public int read(String database, String table, String key, Set<String> fields,
-			HashMap<String, String> result) {
+			Map<String, String> result) {
 		// TODO Auto-generated method stub
 		if(fields == null) {
 			result.putAll(jedis.hgetAll(key));
