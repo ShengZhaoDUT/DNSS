@@ -44,25 +44,18 @@ public class SyncService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SyncService.class);
 	
-	private SingleRedisFactory srf;
-	private MongodbFactory mof;
-	private HBaseFactory hf;
+	
 	private final int threshold = 100;
 	private final String cf = "default";
 	private final String mongoDBName = "db";
 	private final int threadNum = 50;
 	
-	public SyncService(HBaseFactory hf, MongodbFactory mof, SingleRedisFactory srf) {
-		
-		this.srf = srf;
-		this.mof = mof;
-		this.hf = hf;
-	}
+	public SyncService() {}
 	
 	public void syncStart(int database) {
 		
 		//SingleRedis jedisInstance = srf.getInstance();
-		Jedis jedis = srf.getInstance();
+		Jedis jedis = SingleRedisFactory.getInstance();
 		Iterator iterator = getKeys(jedis, database);
 		//Pipeline pipeline = jedis.pipelined();
 		Set<String> keys = new HashSet<String>();
@@ -78,7 +71,7 @@ public class SyncService {
 				//sync syncThreads = new sync(pipeline);
 				sync syncThreads = new sync(jedis, keys);
 				executor.execute(syncThreads);
-				jedis = srf.getInstance();
+				jedis = SingleRedisFactory.getInstance();
 				keys = new HashSet<String>();
 				//pipeline = jedis.pipelined();
 			}
@@ -160,8 +153,8 @@ public class SyncService {
 				}
 			}
 			for(Map.Entry<String, List<Put>> entry : hContent.entrySet()) {
-				
-				HTableInterface htable = hf.getHBaseInstance(entry.getKey());
+				// sync to hbase
+				HTableInterface htable = HBaseFactory.getHBaseInstance(entry.getKey());
 				try {
 					htable.put(entry.getValue());
 					
@@ -178,8 +171,8 @@ public class SyncService {
 				}
 			}
 			for(Map.Entry<String, List<DBObject>> entry : mContent.entrySet()) {
-				
-				Mongo mongo = mof.getMongoInstance();
+				// sync to mongodb
+				Mongo mongo = MongodbFactory.getMongoInstance();
 				DB db = mongo.getDB(mongoDBName);
 				DBCollection dbCollection = db.getCollection(entry.getKey());
 				WriteResult wr = dbCollection.insert(entry.getValue());
