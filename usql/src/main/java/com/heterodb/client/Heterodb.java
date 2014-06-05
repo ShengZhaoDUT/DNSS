@@ -52,6 +52,7 @@ public class Heterodb extends DB {
 		HashMap<String, String> cache = new HashMap<String, String>();
 		mis.read(database, table, key, fields, result);
 		rsi.read(database, table, key, fields, cache);
+		// merge the redis result to mongodb
 		if(!cache.isEmpty()) {
 			for(Map.Entry<String, String> entry : cache.entrySet()) {
 				if(result.containsKey(entry.getKey())) {
