@@ -1,39 +1,68 @@
-package com.heterodb.test;
+package com.heterodb.client;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import redis.clients.jedis.Jedis;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.heterodb.common.Configuration;
 import com.heterodb.common.DB;
+import com.heterodb.db.MongodbInstance;
+import com.heterodb.memcache.RedisInstance;
 
-public class Redis extends DB{
-
-	private Jedis jedis; 
+public class Heterodb extends DB {
 	
-	public Redis(String ip, int port) {
-		jedis = new Jedis(ip, port);
+	private static final Logger logger = LoggerFactory.getLogger(Heterodb.class);
+	
+	RedisInstance rsi;
+	MongodbInstance mis;
+	
+	public Heterodb() {
+		
+		init();
 	}
-	
+
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
-		jedis = new Jedis("166.111.69.77", 7000);
+		
+		rsi = new RedisInstance();
+		mis = new MongodbInstance();
 	}
 
 	@Override
 	public void cleanup() {
 		// TODO Auto-generated method stub
-		jedis.disconnect();
+		rsi.cleanup();
+		mis.cleanup();
 	}
 
+	/**
+	 * read from mongodb and redis, merge the result 
+	 */
+	
 	@Override
 	public int read(String database, String table, String key,
 			Set<String> fields, Map<String, String> result) {
 		// TODO Auto-generated method stub
+		
+		HashMap<String, String> cache = new HashMap<String, String>();
+		mis.read(database, table, key, fields, result);
+		rsi.read(database, table, key, fields, cache);
+		// merge the redis result to mongodb
+		if(!cache.isEmpty()) {
+			for(Map.Entry<String, String> entry : cache.entrySet()) {
+				if(result.containsKey(entry.getKey())) {
+					result.put(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+		else {
+			logger.debug("read redis cache is null");
+		}
 		return 0;
 	}
 
@@ -41,17 +70,16 @@ public class Redis extends DB{
 	public int update(String database, String table, String key,
 			Map<String, String> result) {
 		// TODO Auto-generated method stub
-		return 0;
+		
+		return rsi.update(database, table, key, result);
 	}
 
 	@Override
 	public int insert(String database, String table, String key,
 			Map<String, String> values) {
 		// TODO Auto-generated method stub
-		if((jedis.hmset(key, values)).equals("OK")) {
-			return 0;
-		}
-		return 1;
+		
+		return rsi.insert(database, table, key, values);
 	}
 
 	@Override
@@ -67,5 +95,4 @@ public class Redis extends DB{
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
 }

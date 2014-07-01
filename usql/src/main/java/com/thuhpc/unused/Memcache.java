@@ -22,7 +22,7 @@ public class Memcache extends DB{
 		jedis = memcacheFactory.getInstance();
 	}
 	
-	public void init(Configuration conf) {}
+	public void init() {}
 	
 	public void cleanup() {
 		jedis.disconnect();
