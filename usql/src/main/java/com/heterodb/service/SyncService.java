@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.glassfish.grizzly.utils.ArraySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,32 +49,64 @@ public class SyncService {
 	private final int threshold = 100;
 	private final String cf = "default";
 	private final String mongoDBName = "db";
-	private final int threadNum = 50;
+	private final int threadCount = 10;
 	
 	public SyncService() {}
 	
-	public void syncStart(int database) {
+	public boolean syncStart(int database) {
 		
-		//SingleRedis jedisInstance = srf.getInstance();
+		// new sync service, support concurrency by transaction
+		
+		// scan the keys
 		Jedis jedis = SingleRedisFactory.getInstance();
-		Iterator iterator = getKeys(jedis, database);
-		//Pipeline pipeline = jedis.pipelined();
+		Iterator<String> iterator = getKeys(jedis, database);
+		
+		// divide the keys
+		ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+		List<String> keys = new ArrayList<String>();
+		int i = 0;
+		while(iterator.hasNext()) {
+			String key = iterator.next();
+			keys.add(key);
+			i++;
+			if(i == threshold) {
+				i = 0;
+				sync syncThreads = new sync(jedis, keys);
+				executor.execute(syncThreads);
+				jedis = SingleRedisFactory.getInstance();
+				keys = new ArrayList<String>();
+			}
+		}
+		if(!keys.isEmpty()) {
+			sync syncThreads = new sync(jedis, keys);
+			executor.execute(syncThreads);
+		}
+		executor.shutdown();
+		try {
+			while(!executor.awaitTermination(1, TimeUnit.SECONDS))
+				logger.debug("waiting syncing");
+			return true;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		// old sync service, do not support the overlap between delete and insert
+		/*Jedis jedis = SingleRedisFactory.getInstance();
+		Iterator<String> iterator = getKeys(jedis, database);
 		Set<String> keys = new HashSet<String>();
 		ExecutorService executor = Executors.newFixedThreadPool(50);
 		int i = 0;
 		while(iterator.hasNext()) {
 			String key = (String)iterator.next();
-			//pipeline.hgetAll(key);
 			keys.add(key);
 			i++;
 			if(i == threshold) {
 				i = 0;
-				//sync syncThreads = new sync(pipeline);
 				sync syncThreads = new sync(jedis, keys);
 				executor.execute(syncThreads);
 				jedis = SingleRedisFactory.getInstance();
 				keys = new HashSet<String>();
-				//pipeline = jedis.pipelined();
 			}
 			if(!iterator.hasNext()) {
 				i = 0;
@@ -88,25 +121,25 @@ public class SyncService {
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	
-	public Iterator getKeys(Jedis jedis, int database) {
+	public Iterator<String> getKeys(Jedis jedis, int database) {
 		
 		if(database != 0) {
 			jedis.select(database);
 		}
-		Iterator it = jedis.keys("*").iterator();
+		Iterator<String> it = jedis.keys("*").iterator();
 		return it;
 	}
 	
 	class sync implements Runnable {
 		
 		private Jedis threadJedis;
-		private Set<String> threadKeys;
+		private List<String> threadKeys;
 		
-		sync(Jedis jedis, Set<String> keys) {
+		sync(Jedis jedis, List<String> keys) {
 			
 			threadJedis = jedis;
 			threadKeys = keys;
@@ -116,18 +149,26 @@ public class SyncService {
 			String tableName = "";
 			logger.debug("new thread: " + Thread.currentThread().getId());
 			Pipeline pipeline = threadJedis.pipelined();
+			pipeline.multi();
 			for(String key : threadKeys) {
 				pipeline.hgetAll(key);
+				pipeline.del(key);
 			}
 			Response<List<Object>> response = pipeline.exec();
-			List<Object> result = response.get();
+			List<Object> result = pipeline.syncAndReturnAll();
 			Iterator<Object> iterator = result.iterator();
 			Iterator<String> itKey = threadKeys.iterator();
-			threadJedis.disconnect();
+			
+			// return the jedis resource
+			SingleRedisFactory.close(threadJedis);
+			
+			// sync result to other db
 			Map<String, List<Put>> hContent = new HashMap<String, List<Put>>();
 			Map<String, List<DBObject>> mContent = new HashMap<String, List<DBObject>>();
-			while(iterator.hasNext()) {
+			while(itKey.hasNext()) {
+				// two iterator.next == one key.next()
 				Map<String, String> keyval = (Map<String, String>)iterator.next();
+				iterator.next();
 				String key = itKey.next();
 				if(keyval.containsKey("table")) {
 					tableName = keyval.get("table");
@@ -177,6 +218,24 @@ public class SyncService {
 				DBCollection dbCollection = db.getCollection(entry.getKey());
 				WriteResult wr = dbCollection.insert(entry.getValue());
 				logger.debug("mongodb write result: " + wr.getN());
+			}
+			
+		}
+	}
+	public static void main(String[] args) {
+		SyncService sservice = new SyncService();
+		while(true) {
+			if(sservice.syncStart(0)) {
+				try {
+					Thread.sleep(120);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					logger.debug("main thread sleep error");
+					e.printStackTrace();
+				}
+			}	
+			else {
+				logger.debug("sync error");
 			}
 		}
 	}

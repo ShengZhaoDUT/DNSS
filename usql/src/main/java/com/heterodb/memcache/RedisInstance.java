@@ -32,7 +32,7 @@ public class RedisInstance extends DB{
 	@Override
 	public void cleanup() {
 		// TODO Auto-generated method stub
-		shardedJedis.disconnect();
+		RedisFactory.close(shardedJedis);
 	}
 
 	@Override

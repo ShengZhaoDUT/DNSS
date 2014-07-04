@@ -31,7 +31,6 @@ public class RedisFactory {
 	private static final Logger logger = LoggerFactory.getLogger(RedisFactory.class);
 	
 	private static ShardedJedisPool shardedJedisPool;
-	private static ShardedJedis jedis;
 	//private List<JedisShardInfo> shards = new ArrayList<JedisShardInfo>();
 	
 	static{
@@ -67,7 +66,7 @@ public class RedisFactory {
 		return shardedJedisPool.getResource();
 	}
 	
-	public static void close() {
-		jedis.disconnect();
+	public static void close(ShardedJedis jedis) {
+		shardedJedisPool.returnResource(jedis);
 	}
 }

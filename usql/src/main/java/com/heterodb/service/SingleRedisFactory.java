@@ -26,4 +26,8 @@ public class SingleRedisFactory {
 		
 		 return pool.getResource();
 	}
+	
+	public static void close(Jedis jedis) {
+		pool.returnResource(jedis);
+	}
 }
