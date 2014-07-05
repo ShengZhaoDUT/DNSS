@@ -7,11 +7,9 @@ package com.heterodb.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.glassfish.grizzly.utils.ArraySet;
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -223,6 +221,7 @@ public class SyncService {
 		}
 	}
 	public static void main(String[] args) {
+		PropertyConfigurator.configure(".\\src\\log4j.properties");
 		SyncService sservice = new SyncService();
 		while(true) {
 			if(sservice.syncStart(0)) {
