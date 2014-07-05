@@ -221,7 +221,7 @@ public class SyncService {
 		}
 	}
 	public static void main(String[] args) {
-		PropertyConfigurator.configure(".\\src\\log4j.properties");
+		PropertyConfigurator.configure("./log4j.properties");
 		SyncService sservice = new SyncService();
 		while(true) {
 			if(sservice.syncStart(0)) {
