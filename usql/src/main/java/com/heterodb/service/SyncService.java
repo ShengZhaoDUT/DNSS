@@ -56,8 +56,11 @@ public class SyncService {
 		// new sync service, support concurrency by transaction
 		
 		// scan the keys
+		logger.debug("scan redis start");
 		Jedis jedis = SingleRedisFactory.getInstance();
 		Iterator<String> iterator = getKeys(jedis, database);
+		SingleRedisFactory.close(jedis);
+		logger.debug("scan redis finish");
 		
 		// divide the keys
 		ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -69,20 +72,24 @@ public class SyncService {
 			i++;
 			if(i == threshold) {
 				i = 0;
+				jedis = SingleRedisFactory.getInstance();
 				sync syncThreads = new sync(jedis, keys);
 				executor.execute(syncThreads);
-				jedis = SingleRedisFactory.getInstance();
+				logger.debug("new thread start!");
 				keys = new ArrayList<String>();
 			}
 		}
 		if(!keys.isEmpty()) {
+			jedis = SingleRedisFactory.getInstance();
 			sync syncThreads = new sync(jedis, keys);
 			executor.execute(syncThreads);
+			logger.debug("new thread start");
 		}
 		executor.shutdown();
 		try {
 			while(!executor.awaitTermination(1, TimeUnit.SECONDS))
 				logger.debug("waiting syncing");
+			logger.debug("sync service finish");
 			return true;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -154,7 +161,7 @@ public class SyncService {
 			}
 			Response<List<Object>> response = pipeline.exec();
 			List<Object> result = pipeline.syncAndReturnAll();
-			Iterator<Object> iterator = result.iterator();
+			Iterator<Object> iterator = response.get().iterator();
 			Iterator<String> itKey = threadKeys.iterator();
 			
 			// return the jedis resource
@@ -170,25 +177,29 @@ public class SyncService {
 				String key = itKey.next();
 				if(keyval.containsKey("table")) {
 					tableName = keyval.get("table");
-					Put put = new Put(Bytes.toBytes(key));
-					DBObject dbObject = new BasicDBObject();
-					dbObject.put("_id", key);
-					for(Map.Entry<String, String> entry : keyval.entrySet()) {
-						put.add(Bytes.toBytes(cf), Bytes.toBytes(entry.getKey()), Bytes.toBytes(entry.getValue()));
-						dbObject.put(entry.getKey(), entry.getValue());
-					}
-					if(hContent.containsKey(tableName)) {
-						hContent.get(tableName).add(put);
-						mContent.get(tableName).add(dbObject);
-					}
-					else {
-						List<Put> puts = new ArrayList<Put>();
-						List<DBObject> dbObjects = new ArrayList<DBObject>();
-						puts.add(put);
-						dbObjects.add(dbObject);
-						hContent.put(tableName, puts);
-						mContent.put(tableName, dbObjects);
-					}
+				}
+				else {
+					tableName = "syncFromRedis";
+				}
+				logger.debug("tableName: " + tableName);
+				Put put = new Put(Bytes.toBytes(key));
+				DBObject dbObject = new BasicDBObject();
+				dbObject.put("_id", key);
+				for(Map.Entry<String, String> entry : keyval.entrySet()) {
+					put.add(Bytes.toBytes(cf), Bytes.toBytes(entry.getKey()), Bytes.toBytes(entry.getValue()));
+					dbObject.put(entry.getKey(), entry.getValue());
+				}
+				if(hContent.containsKey(tableName)) {
+					hContent.get(tableName).add(put);
+					mContent.get(tableName).add(dbObject);
+				}
+				else {
+					List<Put> puts = new ArrayList<Put>();
+					List<DBObject> dbObjects = new ArrayList<DBObject>();
+					puts.add(put);
+					dbObjects.add(dbObject);
+					hContent.put(tableName, puts);
+					mContent.put(tableName, dbObjects);
 				}
 			}
 			for(Map.Entry<String, List<Put>> entry : hContent.entrySet()) {
@@ -223,10 +234,14 @@ public class SyncService {
 	public static void main(String[] args) {
 		PropertyConfigurator.configure("./log4j.properties");
 		SyncService sservice = new SyncService();
+		int iloop = 0;
 		while(true) {
+			iloop++;
+			logger.debug("sync loop:" + iloop);
 			if(sservice.syncStart(0)) {
 				try {
-					Thread.sleep(120);
+					logger.debug("main thread sleep");
+					Thread.sleep(1000*120);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					logger.debug("main thread sleep error");

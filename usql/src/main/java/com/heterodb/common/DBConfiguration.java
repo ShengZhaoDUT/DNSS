@@ -14,10 +14,10 @@ public class DBConfiguration {
 	
 	public static void load() {
 		
-		configuration.put("hbase-hostname", "166.111.69.77");
+		configuration.put("hbase-hostname", "192.168.6.10");
 		configuration.put("hbase-port", "2181");
-		configuration.put("mongo-hostname", "166.111.69.77");
-		configuration.put("mongo-port", "27017");
+		configuration.put("mongo-hostname", "192.168.6.10");
+		configuration.put("mongo-port", "20000");
 		configuration.put("connection-multiplier", "5");
 		configuration.put("connection_host", "10");
 		configuration.put("Redis_Total", "25");
