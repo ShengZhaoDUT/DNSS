@@ -1,6 +1,5 @@
 package com.heterodb.common;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;

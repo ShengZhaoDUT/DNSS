@@ -1,13 +1,11 @@
 package com.heterodb.test;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 import redis.clients.jedis.Jedis;
 
-import com.heterodb.common.Configuration;
 import com.heterodb.common.DB;
 
 public class Redis extends DB{

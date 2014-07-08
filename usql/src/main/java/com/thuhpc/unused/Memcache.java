@@ -1,6 +1,5 @@
 package com.thuhpc.unused;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.Vector;
 
 import redis.clients.jedis.Jedis;
 
-import com.heterodb.common.Configuration;
 import com.heterodb.common.DB;
 
 public class Memcache extends DB{

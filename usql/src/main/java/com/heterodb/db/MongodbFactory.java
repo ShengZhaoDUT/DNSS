@@ -2,7 +2,6 @@ package com.heterodb.db;
 
 import java.net.UnknownHostException;
 
-import com.heterodb.common.Configuration;
 import com.heterodb.common.DBConfiguration;
 import com.mongodb.Mongo;
 import com.mongodb.MongoOptions;

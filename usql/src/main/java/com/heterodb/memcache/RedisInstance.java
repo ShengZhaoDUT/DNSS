@@ -1,14 +1,11 @@
 package com.heterodb.memcache;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 import redis.clients.jedis.ShardedJedis;
 
-import com.heterodb.common.Configuration;
 import com.heterodb.common.DB;
 
 public class RedisInstance extends DB{

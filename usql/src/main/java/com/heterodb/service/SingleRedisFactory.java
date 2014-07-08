@@ -4,7 +4,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-import com.heterodb.common.Configuration;
 import com.heterodb.common.DBConfiguration;
 
 public class SingleRedisFactory {

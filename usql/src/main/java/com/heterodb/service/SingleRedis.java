@@ -3,8 +3,6 @@ package com.heterodb.service;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.print.attribute.Size2DSyntax;
-
 import redis.clients.jedis.Jedis;
 
 /**
@@ -25,11 +23,11 @@ public class SingleRedis {
 		return jedis;
 	}
 	
-	public Iterator getKeys(int database) {
+	public Iterator<String> getKeys(int database) {
 		if(database != 0) {
 			jedis.select(database);
 		}
-		Iterator it = jedis.keys("*").iterator();
+		Iterator<String> it = jedis.keys("*").iterator();
 		return it;
 	}
 	

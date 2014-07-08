@@ -7,7 +7,6 @@ import java.util.Map;
 
 import redis.clients.jedis.JedisShardInfo;
 
-import com.heterodb.memcache.RedisFactory;
 import com.heterodb.memcache.RedisInstance;
 
 public class RedisTest {

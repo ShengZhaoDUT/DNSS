@@ -1,11 +1,9 @@
 package com.heterodb.db;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import com.heterodb.common.Configuration;
 import com.heterodb.common.DB;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
