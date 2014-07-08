@@ -235,11 +235,15 @@ public class SyncService {
 		PropertyConfigurator.configure("./log4j.properties");
 		SyncService sservice = new SyncService();
 		int iloop = 0;
+		long start, end;
 		while(true) {
 			iloop++;
 			logger.debug("sync loop:" + iloop);
+			start = System.currentTimeMillis();
+			end = start;
 			if(sservice.syncStart(0)) {
 				try {
+					end = System.currentTimeMillis();
 					logger.debug("main thread sleep");
 					Thread.sleep(1000*120);
 				} catch (InterruptedException e) {
@@ -249,8 +253,13 @@ public class SyncService {
 				}
 			}	
 			else {
+				end = System.currentTimeMillis();
 				logger.debug("sync error");
 			}
+			
+			
+			logger.info("sync loop:".concat(String.valueOf(iloop)).concat(". sync time:")
+					.concat(String.valueOf((end - start) * 1.0 / 1000)).concat("s."));
 		}
 	}
 }
