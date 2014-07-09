@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+	<property>
+		<name>hbase-hostname</name>
+        <value>192.168.6.10</value>
+	</property>
+	<property>
+		<name>hbase-port</name>
+        <value>2181</value>
+	</property>
+	<property>
+		<name>mongo-hostname</name>
+		<value>192.168.6.10</value>
+	</property>
+		<property>
+		<name>mongo-port</name>
+        <value>20000</value>
+	</property>
+	<property>
+		<name>connection-multiplier</name>
+        <value>5</value>
+	</property>
+	<property>
+		<name>connection_host</name>
+		<value>10</value>
+	</property>
+		<property>
+		<name>Redis_Total</name>
+		<value>25</value>
+	</property>
+		<property>
+		<name>Redis_Idle</name>
+        <value>5</value>
+	</property>
+	<property>
+		<name>Redis_WaitMillis</name>
+        <value>60000</value>
+	</property>
+	<property>
+		<name>redis_shard</name>
+		<value>192.168.7.7:6379;192.168.7.101:6379;192.168.7.102:6379;192.168.7.103:6379;192.168.7.103:6379;192.168.7.104:6379;192.168.7.105:6379</value>
+	</property>
+	<property>
+		<name>redis_sync</name>
+        <value>localhost:6379</value>
+	</property>
+</configuration>
