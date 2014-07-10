@@ -16,8 +16,10 @@ public class Heterodb extends DB {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Heterodb.class);
 	
-	RedisInstance rsi;
-	MongodbInstance mis;
+	//private static int readConcern = DBConfiguration.getInt("readConcern", 0);
+	
+	private RedisInstance rsi;
+	private MongodbInstance mis;
 	
 	public Heterodb() {
 		
@@ -48,8 +50,9 @@ public class Heterodb extends DB {
 			Set<String> fields, Map<String, String> result) {
 		// TODO Auto-generated method stub
 		
+		/*
 		HashMap<String, String> cache = new HashMap<String, String>();
-		mis.read(database, table, key, fields, result);
+		//mis.read(database, table, key, fields, result);
 		rsi.read(database, table, key, fields, cache);
 		// merge the redis result to mongodb
 		if(!cache.isEmpty()) {
@@ -62,7 +65,41 @@ public class Heterodb extends DB {
 		else {
 			logger.debug("read redis cache is null");
 		}
-		return 0;
+		*/
+		if(fields == null) {
+			Map<String, String> cache = new HashMap<String, String>();
+			mis.read(database, table, key, fields, result);
+			rsi.read(database, table, key, fields, cache);
+			result.putAll(cache);
+		}
+		else {
+			rsi.read(database, table, key, fields, result);
+			boolean isCacheHit = true;
+			
+			for(String field : fields) {
+				if(result.containsKey(field) && result.get(field) != null) {
+					continue;
+				}
+				else{
+					isCacheHit = false;
+					break;
+				}
+			}
+			
+			if(!isCacheHit) {
+				Map<String, String> cache = new HashMap<String, String>();
+				cache.putAll(result);
+				result.clear();
+				mis.read(database, table, key, fields, result);
+				result.putAll(cache);
+				logger.warn("Cache Miss");
+			}
+			else{
+				logger.warn("Cache Hit");
+			}
+		}
+		
+		return result.isEmpty() ? 1 : 0;
 	}
 
 	@Override
